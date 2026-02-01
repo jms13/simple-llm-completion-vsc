@@ -1,7 +1,12 @@
 {
   "name": "simple-llm-completion",
   "displayName": "Simple LLM Completion",
-  "description": "Simple LLM completion with LLM models using Qwen FIM format.",
+  "description": "LLM completion for local LLM models using Qwen FIM prompt.",
+  "publisher": "jms13",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jms13/llm-completion-vsc.git"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.108.1"
@@ -14,10 +19,74 @@
   "contributes": {
     "commands": [
       {
-        "command": "simple-llm-completion.helloWorld",
-        "title": "Hello World"
+        "command": "simpleLlmCompletion.triggerCompletion",
+        "title": "simpleLlmCompletion: Trigger completion"
       }
-    ]
+    ],
+    "keybindings": [
+      {
+        "command": "simpleLlmCompletion.triggerCompletion",
+        "key": "ctrl+l",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "title": "Simple LLM Completion",
+      "type": "object",
+      "properties": {
+        "simpleLlmCompletion.useAutomaticCompletion": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic completion.",
+          "order": 0
+        },
+        "simpleLlmCompletion.addContextFromOpenFiles": {
+          "type": "string",
+          "enum": [
+            "none",
+            "workspace",
+            "all"
+          ],
+          "default": "workspace",
+          "enumItemLabels": [
+            "None",
+            "Workspace files",
+            "All open files"
+          ],
+          "description": "Add open files to the context.",
+          "enumDescriptions": [
+            "Do not add any files",
+            "Add open files from the workspace",
+            "Add all open files"
+          ],
+          "order": 1
+        },
+        "simpleLlmCompletion.apiEndpoint": {
+          "type": "string",
+          "default": "http://127.0.0.1:8012/v1",
+          "description": "The endpoint compatible with the OpenAI API.",
+          "order": 2
+        },
+        "simpleLlmCompletion.model": {
+          "type": "string",
+          "default": "any-model",
+          "description": "The name of the model to use (the service may ignore this property).",
+          "order": 3
+        },
+        "simpleLlmCompletion.temperature": {
+          "type": "number",
+          "default": 0.1,
+          "description": "The temperature parameter for the model.",
+          "order": 4
+        },
+        "simpleLlmCompletion.maxCompletionTokens": {
+          "type": "number",
+          "default": 40,
+          "description": "The maximum number of tokens to generate in a single completion.",
+          "order": 5
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -34,15 +103,18 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.108.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.52.0",
-    "eslint": "^9.39.2",
+    "@types/vscode": "^1.108.1",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.2",
+    "eslint": "^9.39.2",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.52.0"
+  },
+  "dependencies": {
+    "openai": "^6.17.0"
   }
 }

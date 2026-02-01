@@ -1,71 +1,102 @@
-# simple-llm-completion README
+# Simple LLM Completion
 
-This is the README for your extension "simple-llm-completion". After writing up a brief description, we recommend including the following sections.
+This VSCode extension adds LLM completion for local LLM services using an OpenAI API-compatible endpoint.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- Uses an OpenAI API-compatible endpoint (`v1/completions`).
+- Uses the [Qwen Coder FIM](https://github.com/QwenLM/Qwen3-Coder/blob/main/examples/Qwen2.5-Coder.md) template for prompts.
+- Uses open files as an additional context (optional).
+- Triggers automatically (optional).
+- Sends at most 1 request at a time.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+You will need an LLM service that serves the LLM model, compatible with the OpenAI API.  Examples include [llama.cpp](https://github.com/ggml-org/llama.cpp/releases), [LM Studio](https://lmstudio.ai/), [Lemonade](https://lemonade-server.ai/), and other LLM service implementations.
+
+The extension has been tested with the following model families:
+- Qwen2.5-Coder
+- Qwen3.0-Coder
+
+### How to Start a Local LLM Service?
+
+You can start a local service with the Qwen2.5-Coder-3B model using a selection of implementations.
+
+<details>
+<summary>Using llama.cpp CLI</summary>
+
+1.  Start the service:
+    ```
+    llama-server --fim-qwen-3b-default
+    ```
+2.  Set the `apiEndpoint` in the extension settings to `http://127.0.0.1:8012/v1`.
+
+</details>
+
+<details>
+<summary>Using LM Studio CLI</summary>
+
+> Note: LM Studio does not provide the Qwen2.5-Coder-3B model out-of-the-box.
+
+1.  Prepare the model directory:
+    ```
+    mkdir -p ~/.lmstudio/models/qwen/qwen2.5-coder-3b
+    ```
+2.  Download the model from Hugging Face:
+    ```
+    curl -L https://huggingface.co/ggml-org/Qwen2.5-Coder-3B-Q8_0-GGUF/resolve/main/qwen2.5-coder-3b-q8_0.gguf -o ~/.lmstudio/models/qwen/qwen2.5-coder-3b/qwen2.5-coder-3b-q8_0.gguf
+    ```
+3.  Load the model and start the service:
+    ```
+    lms load qwen/qwen2.5-coder-3b --context-length 32768 && lms server start
+    ```
+4.  Set the `apiEndpoint` in the extension settings to `http://127.0.0.1:1234/v1`.
+5.  Set the `model` in the extension settings to `qwen2.5-coder-3b`.
+
+</details>
+
+<details>
+<summary>Using Lemonade CLI</summary>
+
+> Note: Lemonade does not provide the Qwen2.5-Coder-3B model out-of-the-box.
+
+1.  Download the model:
+    ```
+    lemonade-server pull user.qwen2.5-coder-3b --checkpoint ggml-org/Qwen2.5-Coder-3B-Q8_0-GGUF:Q8_0 --recipe llamacpp
+    ```
+2.  Start the service:
+    ```
+    lemonade-server serve --ctx-size 0
+    ```
+3.  Set the `apiEndpoint` in the extension settings to `http://127.0.0.1:8000/api/v1`.
+4.  Set the `model` in the extension settings to `user.qwen2.5-coder-3b`.
+
+</details>
+
+### Others
+
+Ollama does not work. Ollama appends the chat template to the `v1/completions` endpoint; see [the issue](https://github.com/ollama/ollama/issues/5544).
+
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+The extension contributes the following settings:
+* `simple-llm-completion.useAutomaticCompletion`:  Enable automatic completion.
+* `simple-llm-completion.useContextFromOpenFiles`: Enable using open files in the editor for context.
+* `simple-llm-completion.apiEndpoint`: The endpoint compatible with the OpenAI API (default: `http://127.0.0.1:8012/v1`).
+* `simple-llm-completion.model`: The name of the model to use (the service may ignore this property).
+* `simple-llm-completion.temperature`: The temperature parameter for the model.
+* `simple-llm-completion.maxCompletionTokens`: The maximum number of tokens to generate in a single completion.
 
-For example:
+The extension uses the environment variable `OPENAI_API_KEY` if it's set.
 
-This extension contributes the following settings:
+## Extension Hotkeys
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
+This extension sets the following hotkeys:
+* `Ctrl + L`:  Trigger the completion.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release of the extension.

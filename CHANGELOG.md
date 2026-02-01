@@ -1,9 +1,7 @@
 # Change Log
 
-All notable changes to the "simple-llm-completion" extension will be documented in this file.
+## 0.0.1
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+### Added 
 
-## [Unreleased]
-
-- Initial release
+- Initial release of the extension.
