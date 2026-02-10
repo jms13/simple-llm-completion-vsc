@@ -97,6 +97,10 @@ This extension sets the following hotkeys:
 
 ## Release Notes
 
+### 0.0.2
+
+Activate the extension automatically.
+
 ### 0.0.1
 
 Initial release of the extension.
