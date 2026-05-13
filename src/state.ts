@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import * as vscode from "vscode";
-import { readEnv, trimStringStartBy as trimStringStart } from "./utils";
+import { readEnv } from "./utils";
 
 const STATUS_BAR_NAME = "Simple LLM Completion";
 
@@ -99,7 +99,7 @@ export class Completion implements vscode.InlineCompletionItemProvider {
 
     private async doCompletion(document: vscode.TextDocument, position: vscode.Position, context: vscode.InlineCompletionContext, token: vscode.CancellationToken): Promise<vscode.InlineCompletionItem[] | vscode.InlineCompletionList> {
         this.updateStatusBar("$(loading)");
-        const { curentFilePrompt, currentLinePrefix, isWhitespaceCurrentLinePrefix } = this.getCurrentFilePrompt(document, position);
+        const { curentFilePrompt } = this.getCurrentFilePrompt(document, position);
         // Collect context and current file.
         const addContextFromOpenFiles = this.config.get<AddContextFromOpenFiles>("addContextFromOpenFiles") ?? AddContextFromOpenFiles.None;
         const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -130,13 +130,10 @@ export class Completion implements vscode.InlineCompletionItemProvider {
             }
             let completion = response.choices[0].text;
             console.debug("Got completion:", completion);
-            if (isWhitespaceCurrentLinePrefix) {
-                completion = trimStringStart(completion, "\n");
-                completion = trimStringStart(completion, " ", currentLinePrefix.length);
-            }
             if (completion.trim().length > 0) {
                 this.updateStatusBar("$(check-all)");
             } else {
+                completion = completion.trim();
                 this.updateStatusBar("$(check)");
             }
             return [
@@ -167,7 +164,7 @@ export class Completion implements vscode.InlineCompletionItemProvider {
                             }
                             break;
                         case AddContextFromOpenFiles.All:
-                            break;                        
+                            break;
                     }
                     if (uri.toString() === document.uri.toString()) {
                         continue;
@@ -204,13 +201,12 @@ export class Completion implements vscode.InlineCompletionItemProvider {
         }
         const currentLine = document.lineAt(position.line).text;
         const currentLinePrefix = currentLine.slice(0, position.character);
-        const isWhitespaceCurrentLinePrefix = currentLinePrefix.trim().length === 0;
         const currentLineSuffix = currentLine.slice(position.character);
         const inputPrefix = linesBefore.join("\n") + "\n" + currentLinePrefix;
         const inputSuffix = currentLineSuffix + "\n" + linesAfter.join("\n") + "\n";
         const curentFilePrompt = "<|file_sep|>" + document.fileName + "\n" + "<|fim_prefix|>" + inputPrefix + "<|fim_suffix|>" + inputSuffix + "<|fim_middle|>";
         return {
-            curentFilePrompt, currentLinePrefix, isWhitespaceCurrentLinePrefix
+            curentFilePrompt
         };
     }
 
@@ -236,8 +232,6 @@ export class Completion implements vscode.InlineCompletionItemProvider {
 
 interface CurrentFileInput {
     curentFilePrompt: string;
-    currentLinePrefix: string;
-    isWhitespaceCurrentLinePrefix: boolean;
 };
 
 class LastOnlyQueue {

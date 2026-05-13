@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.3
+
+### Changed
+- Accept the exact completion text from the model.
+
 ## 0.0.2
 
 ### Added
